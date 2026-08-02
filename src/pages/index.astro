@@ -1,0 +1,62 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Inicio">
+  <div class="card">
+    <h1>Mándalo</h1>
+    <p>
+      Sitio de soporte legal y de cuenta de la app Mándalo (pedidos a
+      domicilio en Putumayo, Colombia). No es la tienda ni el checkout — para
+      pedir, usa la app.
+    </p>
+
+    <div class="links">
+      <a class="link-card" href="/eliminar-cuenta">
+        <strong>Eliminar mi cuenta</strong>
+        <span>Borra tu cuenta y tus datos, con o sin la app instalada.</span>
+      </a>
+      <a class="link-card" href="/privacidad">
+        <strong>Política de privacidad</strong>
+        <span>Qué datos recogemos y para qué los usamos.</span>
+      </a>
+      <a class="link-card" href="/terminos">
+        <strong>Términos y condiciones</strong>
+        <span>Las reglas de uso de la app.</span>
+      </a>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .link-card {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: var(--surface);
+    text-decoration: none;
+  }
+
+  .link-card strong {
+    color: var(--dark);
+    font-size: 15px;
+  }
+
+  .link-card span {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .link-card:hover {
+    background: var(--primary-tint);
+  }
+</style>

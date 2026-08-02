@@ -1,0 +1,175 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Eliminar mi cuenta"
+  description="Cómo solicitar la eliminación de tu cuenta y tus datos de Mándalo, con o sin la app instalada."
+>
+  <div class="card">
+    <h1>Eliminar mi cuenta de Mándalo</h1>
+    <p>
+      Puedes eliminar tu cuenta de dos formas. Elige la que te sirva — ambas
+      hacen exactamente lo mismo.
+    </p>
+
+    <h2>1. Desde la app (si tienes acceso)</h2>
+    <p>
+      Abre Mándalo → <strong>Mi perfil</strong> → <strong>Cuenta</strong> →
+      <strong>"Eliminar mi cuenta"</strong>. Confirmas y listo, es inmediato.
+    </p>
+
+    <h2>2. Desde aquí (sin necesidad de la app)</h2>
+    <p>
+      Escribe el correo con el que te registraste. Te mandamos un enlace de
+      confirmación — al abrirlo, tu cuenta se elimina.
+    </p>
+
+    <form id="delete-form" class="delete-form" novalidate>
+      <label for="email">Correo de tu cuenta</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="tu@correo.com"
+        autocomplete="email"
+        required
+      />
+      <button type="submit" id="submit-btn">Enviar enlace de confirmación</button>
+      <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+    </form>
+
+    <h2>¿Qué se elimina exactamente?</h2>
+    <p>
+      Tu nombre, correo, teléfono, dirección, foto de perfil y, si eres
+      repartidor, los documentos de identificación y del vehículo (cédula,
+      licencia, SOAT, tecnomecánica) — todo se borra de inmediato y no se
+      puede deshacer.
+    </p>
+    <p>
+      Si tienes pedidos en tu historial, el <em>registro</em> de esos pedidos
+      (montos, fechas, estados) se conserva de forma <strong>anónima</strong>,
+      sin ningún dato que te identifique — es información compartida con el
+      negocio y/o el repartidor de ese pedido, y Mándalo debe conservarla por
+      contabilidad. Si nunca hiciste ni recibiste un pedido, tu cuenta se
+      borra por completo, sin dejar rastro.
+    </p>
+    <p>
+      Más detalle en la <a href="/privacidad">Política de privacidad</a>.
+    </p>
+  </div>
+</Layout>
+
+<style>
+  .delete-form {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--surface);
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  input[type='email'] {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    font-size: 15px;
+    color: var(--dark);
+    background: var(--surface);
+  }
+
+  input[type='email']:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+  }
+
+  button {
+    width: 100%;
+    height: 50px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 14px;
+    background: var(--red);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  button:not(:disabled):hover {
+    opacity: 0.9;
+  }
+
+  .form-message {
+    margin: 14px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .form-message.success {
+    color: #16a34a;
+  }
+
+  .form-message.error {
+    color: var(--red);
+  }
+</style>
+
+<script>
+  const API_URL = import.meta.env.PUBLIC_API_URL ?? 'https://apimandaloprod.ecohotelsamawe.com';
+
+  const form = document.getElementById('delete-form') as HTMLFormElement;
+  const emailInput = document.getElementById('email') as HTMLInputElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const messageEl = document.getElementById('form-message') as HTMLParagraphElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    if (!email) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando…';
+    messageEl.textContent = '';
+    messageEl.className = 'form-message';
+
+    try {
+      const res = await fetch(`${API_URL}/user/request-deletion`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (res.ok) {
+        messageEl.textContent =
+          data?.message ?? 'Te enviamos un correo para confirmar la eliminación de tu cuenta.';
+        messageEl.classList.add('success');
+        form.reset();
+      } else {
+        messageEl.textContent =
+          data?.message ?? 'No pudimos procesar la solicitud. Intenta de nuevo.';
+        messageEl.classList.add('error');
+      }
+    } catch {
+      messageEl.textContent = 'No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.';
+      messageEl.classList.add('error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar enlace de confirmación';
+    }
+  });
+</script>
